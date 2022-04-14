@@ -1,0 +1,51 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "appName": {
+            "value": "apimPoc"
+        },
+        "resourceTags": {
+            "value": {
+                "Environment": "dev",
+                "Project": "apim-poc"
+            }
+        },  
+        "location": {
+            "value": "northeurope"
+        }, 
+        "region": {
+            "value": "NE"
+        },
+        "organizationName" : {
+            "value": "Contoso Enterprise"
+        }, 
+        "organizationEmail": {
+            "value": "thotheod@outlook.com"
+        },
+        "snetApimId": {
+            "value": "/subscriptions/0a52391c-0d81-434e-90b4-d04f5c670e8a/resourceGroups/rg-apim-PoC-dev-001/providers/Microsoft.Network/virtualNetworks/vnet-apim-poc-dev-001/subnets/snet-apimPoc-NE-vnet-apim-poc-dev-001-Apim"
+        },
+        "snetAppGwId": {
+            "value": "/subscriptions/0a52391c-0d81-434e-90b4-d04f5c670e8a/resourceGroups/rg-apim-PoC-dev-001/providers/Microsoft.Network/virtualNetworks/vnet-apim-poc-dev-001/subnets/snet-apimPoc-NE-vnet-apim-poc-dev-001-WAF"
+        },
+        "vnetName" : {
+            "value": "vnet-apim-poc-dev-001"
+        },
+        "vnetRGName": {
+            "value": "rg-apim-PoC-dev-001"
+        },
+        "keyvaultAppGWCertName": {
+            "value": "kv-apimpoc-NE-dev"
+        },
+        "keyvaultAppGWCertRG": {
+            "value": "rg-apimPoc-NE-dev-002"
+        },
+        "appGatewayFQDN": {
+            "value": "appgw.theolabs.gr"
+        },
+        "certificateName": {
+            "value": "appgw-theolabs-gr"
+        }
+    }
+}
