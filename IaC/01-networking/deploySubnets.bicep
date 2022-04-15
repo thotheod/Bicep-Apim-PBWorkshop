@@ -89,6 +89,14 @@ module snetApimPortal 'modules/subnet.module.bicep' = if (!empty(snetApimPortalC
     addressPrefix: snetApimPortalCIDR
     name: snetApimPortalName
     virtualNetworkName: vnetName
+    delegations: [
+      {
+        name: 'delegation'
+        properties: {
+          serviceName: 'Microsoft.Web/serverfarms'
+        }
+      }
+    ]
   }
 }
 
@@ -108,6 +116,14 @@ module snetWorkloads 'modules/subnet.module.bicep' = if (!empty(snetWorkloadsCID
     addressPrefix: snetWorkloadsCIDR
     name: snetWorkloadsName
     virtualNetworkName: vnetName
+    delegations: [
+      {
+        name: 'delegation'
+        properties: {
+          serviceName: 'Microsoft.Web/serverfarms'
+        }
+      }
+    ]
   }
 }
 

@@ -29,6 +29,12 @@
         "snetAppGwId": {
             "value": "/subscriptions/0a52391c-0d81-434e-90b4-d04f5c670e8a/resourceGroups/rg-apim-PoC-dev-001/providers/Microsoft.Network/virtualNetworks/vnet-apim-poc-dev-001/subnets/snet-apimPoc-NE-vnet-apim-poc-dev-001-WAF"
         },
+        "snetPEId": {
+            "value": "/subscriptions/0a52391c-0d81-434e-90b4-d04f5c670e8a/resourceGroups/rg-apim-PoC-dev-001/providers/Microsoft.Network/virtualNetworks/vnet-apim-poc-dev-001/subnets/snet-apimPoc-NE-vnet-apim-poc-dev-001-PE"
+        },
+        "snetApimPortalId": {
+            "value": "/subscriptions/0a52391c-0d81-434e-90b4-d04f5c670e8a/resourceGroups/rg-apim-PoC-dev-001/providers/Microsoft.Network/virtualNetworks/vnet-apim-poc-dev-001/subnets/snet-apimPoc-NE-vnet-apim-poc-dev-001-ApimPortal"
+        },
         "vnetName" : {
             "value": "vnet-apim-poc-dev-001"
         },
@@ -46,6 +52,16 @@
         },
         "certificateName": {
             "value": "appgw-theolabs-gr"
+        },
+        "jumpBoxUserName": {
+            "value": "vmadmin"
+        },
+        "jumpBoxUserSnetId": {
+            "value": "/subscriptions/0a52391c-0d81-434e-90b4-d04f5c670e8a/resourceGroups/rg-apim-PoC-dev-001/providers/Microsoft.Network/virtualNetworks/vnet-apim-poc-dev-001/subnets/snet-apimPoc-NE-vnet-apim-poc-dev-001-Vms"
+        },
+        "sqlServerUserName": {
+            "value": "dbadmin"
         }
+        
     }
 }

@@ -8,8 +8,14 @@ param appName string
 param region string
 param snetApimId string
 param snetAppGwId string
+param snetPEId string
+param snetApimPortalId string
 param keyvaultAppGWCertName string
 param keyvaultAppGWCertRG string
+param jumpBoxUserName string
+param jumpBoxUserSnetId string
+param sqlServerUserName string
+
 
 @description('the name of the self signed certificate in key vault (i.e. appgw-theolabs-gr MUST be the same as the one created in AddSelfSignedCertificate.ps1)')
 param certificateName string
@@ -31,6 +37,14 @@ param vnetRGName string
 @description('The FQDN of the appGW')
 param appGatewayFQDN string
 
+@description('Password of the admin user for the vmJumpbox')
+@secure()
+param vmJumpBoxPassword string
+
+@description('Password of the dbadmin user for the Azure SQL')
+@secure()
+param sqlServerPassword string
+
 
 
 
@@ -40,11 +54,28 @@ var env = resourceTags.Environment
 //var resource names
 var apimName = 'apim-${appName}-${region}-${env}'
 var appInsightsApimName = 'appi-${apimName}'
+
 var logAnalyticsApimWsName = 'log-${apimName}'
 //var keyVaultName = 'kv-${appName}-${region}-${env}'
 var pipApimName = 'pip-${appName}-${region}-${env}'
 var appGwName = 'agw-${appName}-${region}-${env}'
+var vmname = 'vmJumpBoxApim'
+var sqlServerName = 'sql-${appName}-${region}-${env}'
+var sqlDBName = 'sqldb-apim-portal-${region}-${env}'
+var apimPortalWebAppName = 'app-apim-portal-${region}-${env}'
+var apimPortalPlanName = 'plan-apim-portal-${region}-${env}'
+var appInsightsApimPortalName = 'appi-${apimPortalPlanName}'
+var evtHubNamespace = 'evhns-${appName}-${region}-${env}'
+var eventHubName = 'evh-${appName}-${region}-${env}'
+var evtHubconsumerGroupName = 'cg-${eventHubName}'
+var streamAnalyticsJobName = 'asa-${appName}-${region}-${env}'
 
+
+
+resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' existing = {
+  name: vnetName
+  scope: resourceGroup(vnetRGName)
+}
 
 //Create Resources
 module appInsightsApim 'modules/appInsghts.module.bicep' = {
@@ -115,14 +146,134 @@ module appGw 'modules/appgw.bicep' = {
   }
 }
 
-// module keyVault 'modules/keyvault.module.bicep' = {
-//   name: 'keyvaultDeployment'
+module jumpBoxVM 'modules/vmWin.module.bicep' = if (!empty(jumpBoxUserSnetId)) {
+  name: 'jumpBoxVMDeployment'
+  params: {
+    location: location
+    password: vmJumpBoxPassword
+    subnetId: jumpBoxUserSnetId
+    tags: resourceTags
+    username: jumpBoxUserName
+    vmName: vmname
+  }
+}
+
+// module sqlServer 'modules/sqlServer.module.bicep' = {
+//   name: 'sqlServerDeployment'
 //   params: {
-//     name: keyVaultName
+//     name: sqlServerName
 //     tags: resourceTags
+//     administratorLogin: sqlServerUserName
+//     administratorLoginPassword: sqlServerPassword
+//     databaseName: sqlDBName
 //     location: location
 //   }
 // }
+
+// module sqlServerPrivateDnsZone 'modules/privateDnsZone.module.bicep'={
+//   name: 'sqlServerPrivateDnsZoneDeployment'
+//   params: {
+//     name: 'privatelink${environment().suffixes.sqlServerHostname}'
+//     vnetIds: [
+//       vnet.id
+//     ] 
+//   }
+// }
+
+// module sqlServerPrivateEndpoint 'modules/privateEndpoint.module.bicep' = {
+//   name: 'sqlServerPrivateEndpointDeployment'
+//   params: {
+//     name: 'pe-${sqlServerName}'
+//     location: location
+//     tags: resourceTags
+//     privateDnsZoneId: sqlServerPrivateDnsZone.outputs.id
+//     privateLinkServiceId: sqlServer.outputs.id
+//     subnetId: snetPEId
+//     subResource: 'sqlServer'
+//   }  
+// }
+
+module appInsightsApimPortal 'modules/appInsghts.module.bicep' = {
+  name: 'appInsghtsApimPortalDeployment'
+  params: {
+    name: appInsightsApimPortalName
+    location: location
+    tags: resourceTags
+    workspaceName: logAnalyticsApimWsName
+  }
+}
+
+module apimPortalWebApp 'modules/webApp.module.bicep' = {
+  name: 'backendWebAppDeployment'
+  params: {
+    name: apimPortalWebAppName
+    planName: apimPortalPlanName
+    location: location
+    tags: resourceTags    
+    subnetIdForIntegration: snetApimPortalId
+    managedIdentity: true
+    appInsightsInstrumentationKey: appInsightsApimPortal.outputs.instrumentationKey
+    appSettings: [
+      // {
+      //   name: 'StorageConnection'
+      //   value: '@Microsoft.KeyVault(VaultName=${resourceNames.keyVault};SecretName=${secretNames.dataStorageConnectionString})'
+      // }
+      // {
+      //   name: 'SqlDbConnection'
+      //   value: '@Microsoft.KeyVault(VaultName=${resourceNames.keyVault};SecretName=${secretNames.sqlConnectionString})'
+      // }
+      // {
+      //   name: 'RedisConnection'
+      //   value: '@Microsoft.KeyVault(VaultName=${resourceNames.keyVault};SecretName=${secretNames.redisConnectionString})'
+      // }
+    ]
+  }
+}
+
+module websitesPrivateDnsZone 'modules/privateDnsZone.module.bicep'={
+  name: 'websitesPrivateDnsZoneDeployment'
+  params: {
+    name: 'privatelink.azurewebsites.net'
+    vnetIds: [
+      vnet.id
+    ] 
+  }
+}
+
+module apimPortalPE 'modules/privateEndpoint.module.bicep' = {
+  name: 'apimPortalPEDeployment'
+  params: {
+    name: 'pe-${apimPortalWebAppName}'
+    location: location
+    tags: resourceTags    
+    privateDnsZoneId: websitesPrivateDnsZone.outputs.id
+    privateLinkServiceId: apimPortalWebApp.outputs.id
+    subnetId: snetPEId
+    subResource: 'sites'
+  }  
+}
+
+
+module eventHub 'modules/eventHub.module.bicep' = {
+  name: 'eventHubDeployment'
+  params: {
+    consumerGroupName: evtHubconsumerGroupName
+    eventHubName: eventHubName
+    location: location
+    namespaceName: evtHubNamespace
+    tags: resourceTags
+  }
+}
+
+module streamAnalyticsJob 'modules/streamAnalyticsJob.module.bicep' = {
+  name: 'streamAnalyticsJob'
+  params: {
+    location: location
+    name: streamAnalyticsJobName
+    tags: resourceTags
+    numberOfStreamingUnits: 1
+  }
+}
 
 
 output appName string = appName

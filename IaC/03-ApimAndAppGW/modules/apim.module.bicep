@@ -121,14 +121,15 @@ resource logToAnalytics 'Microsoft.Insights/diagnosticSettings@2021-05-01-previe
   }
 }
 
-resource randomColorsApi 'Microsoft.ApiManagement/service/apis@2021-08-01' = {
-  name: '${apim.name}/ColorsSwaggerImport'
-  properties: {
-    format:'swagger-json'
-    value: 'https://markcolorapi.azurewebsites.net/swagger/v1/swagger.json'
-    path: 'colors'  
-  }
-}
+// resource randomColorsApi 'Microsoft.ApiManagement/service/apis@2021-08-01' = {
+//   name: '${apim.name}/ColorsSwaggerImport'
+//   properties: {
+//     format:'swagger-json'
+//     value: 'https://markcolorapi.azurewebsites.net/swagger/v1/swagger.json'
+//     path: 'colors' 
+    
+//   }
+// }
 
 resource apimSelfHostedGateway 'Microsoft.ApiManagement/service/gateways@2021-08-01' = {
   parent: apim
