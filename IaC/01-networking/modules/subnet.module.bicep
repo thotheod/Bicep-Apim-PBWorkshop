@@ -67,6 +67,7 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (ena
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-05-01' existing = {
   name: virtualNetworkName
+     
 }
 
 resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-05-01' = {

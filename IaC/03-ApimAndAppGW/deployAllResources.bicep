@@ -88,20 +88,22 @@ module appInsightsApim 'modules/appInsghts.module.bicep' = {
   }
 }
 
-module apimPip 'modules/pip.module.bicep' = {
-  name: 'apimPipDeployment'
-  params: {
-    location: location
-    name: pipApimName
-    tags: resourceTags
-  }
-}
+// this is only needed for premium sku. if you force public IP to developer SKU, then developer APIM is suppored to be stv2 (vs stv1) and this seems not to work correclty (API Echo api calls get 500 error)
+// "A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond 138.91.191.195:80"
+// module apimPip 'modules/pip.module.bicep' = {
+//   name: 'apimPipDeployment'
+//   params: {
+//     location: location
+//     name: pipApimName
+//     tags: resourceTags
+//   }
+// }
 
 module apim 'modules/apim.module.bicep' = {
   name: 'apim-deployment'
   params: {
     name: apimName
-    pipStandardId: apimPip.outputs.id
+    // pipStandardId: apimPip.outputs.id
     location: location
     virtualNetworkType: 'Internal'
     tags: resourceTags

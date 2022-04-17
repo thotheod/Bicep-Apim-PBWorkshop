@@ -478,19 +478,20 @@ resource nsgApim 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
           ]
         }
       }
-      {
-        name: 'Deny_All_Internet_Outbound'
-        properties: {
-          protocol: '*'
-          sourcePortRange: '*'
-          destinationPortRange: '*'
-          sourceAddressPrefix: 'VirtualNetwork'
-          destinationAddressPrefix: 'Internet'
-          access: 'Deny'
-          priority: 999
-          direction: 'Outbound'
-        }
-      }
+      // note 20220417: Are you sure you need to deny all internet outbound? no echo API as well :)
+      // {
+      //   name: 'Deny_All_Internet_Outbound'
+      //   properties: {
+      //     protocol: '*'
+      //     sourcePortRange: '*'
+      //     destinationPortRange: '*'
+      //     sourceAddressPrefix: 'VirtualNetwork'
+      //     destinationAddressPrefix: 'Internet'
+      //     access: 'Deny'
+      //     priority: 999
+      //     direction: 'Outbound'
+      //   }
+      // }
     ]
   }
 }
